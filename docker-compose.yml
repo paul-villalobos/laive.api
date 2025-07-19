@@ -7,11 +7,11 @@ services:
       - "8000:8000"
     environment:
       # Variables de entorno para desarrollo local
-      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:password@localhost:5432/laive_db}
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DEBUG=${DEBUG:-true}
-      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DEBUG=${DEBUG}
+      - LOG_LEVEL=${LOG_LEVEL}
     volumes:
       - ./src:/app/src
     restart: unless-stopped

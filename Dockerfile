@@ -4,17 +4,15 @@ FROM python:3.13-slim
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema necesarias para psycopg2
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar archivos de configuración
+# Copiar archivos de configuración de Poetry
 COPY pyproject.toml poetry.lock ./
-
-# Copiar código fuente ANTES de instalar dependencias
-COPY src/ ./src/
 
 # Instalar Poetry
 RUN pip install poetry
@@ -22,8 +20,11 @@ RUN pip install poetry
 # Configurar Poetry para no crear entorno virtual
 RUN poetry config virtualenvs.create false
 
-# Instalar dependencias (ahora Poetry puede encontrar el paquete laive)
-RUN poetry install --only=main
+# Instalar dependencias ANTES de copiar el código
+RUN poetry install --only=main --no-dev
+
+# Copiar código fuente DESPUÉS de instalar dependencias
+COPY src/ ./src/
 
 # Establecer PYTHONPATH para incluir src
 ENV PYTHONPATH=/app/src:$PYTHONPATH
@@ -31,8 +32,5 @@ ENV PYTHONPATH=/app/src:$PYTHONPATH
 # Exponer puerto
 EXPOSE 8000
 
-# Script de inicialización
-COPY src/laive/init_db.py ./src/laive/
-
 # Comando para ejecutar la aplicación
-CMD ["sh", "-c", "poetry run python src/laive/init_db.py && poetry run uvicorn laive.api.main:app --host 0.0.0.0 --port 8000"] 
+CMD ["poetry", "run", "uvicorn", "laive.api.main:app", "--host", "0.0.0.0", "--port", "8000"] 
