@@ -13,17 +13,20 @@ RUN apt-get update && apt-get install -y \
 # Copiar archivos de configuración
 COPY pyproject.toml poetry.lock ./
 
+# Copiar código fuente ANTES de instalar dependencias
+COPY src/ ./src/
+
 # Instalar Poetry
 RUN pip install poetry
 
 # Configurar Poetry para no crear entorno virtual
 RUN poetry config virtualenvs.create false
 
-# Instalar dependencias
+# Instalar dependencias (ahora Poetry puede encontrar el paquete laive)
 RUN poetry install --only=main
 
-# Copiar código fuente
-COPY src/ ./src/
+# Establecer PYTHONPATH para incluir src
+ENV PYTHONPATH=/app/src:$PYTHONPATH
 
 # Exponer puerto
 EXPOSE 8000

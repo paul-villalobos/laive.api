@@ -16,16 +16,25 @@ dependencies = [
 ]
 
 [tool.poetry]
-package-mode = false
+name = "laive-api"
+version = "0.1.0"
+description = ""
+authors = ["Paul Villalobos <wilverpaul@gmail.com>"]
 packages = [{include = "laive", from = "src"}]
 
+[tool.poetry.dependencies]
+python = "^3.13"
+sqlalchemy = "^2.0.41"
+psycopg2-binary = "^2.9.10"
+python-dotenv = "^1.1.1"
+fastapi = "^0.116.1"
+uvicorn = "^0.35.0"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
 
 [tool.poetry.scripts]
-dev = "uvicorn"
-
+dev = "uvicorn laive.api.main:app --host 0.0.0.0 --port 8000 --reload"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
