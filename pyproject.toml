@@ -5,7 +5,7 @@ description = ""
 authors = [
     {name = "Paul Villalobos",email = "wilverpaul@gmail.com"}
 ]
-readme = "README.md"
+# readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "sqlalchemy (>=2.0.41,<3.0.0)",
@@ -16,6 +16,7 @@ dependencies = [
 ]
 
 [tool.poetry]
+package-mode = false
 packages = [{include = "laive", from = "src"}]
 
 
