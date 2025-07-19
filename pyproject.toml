@@ -1,0 +1,31 @@
+[project]
+name = "laive-api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Paul Villalobos",email = "wilverpaul@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "sqlalchemy (>=2.0.41,<3.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "uvicorn (>=0.35.0,<0.36.0)"
+]
+
+[tool.poetry]
+packages = [{include = "laive", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[tool.poetry.scripts]
+dev = "uvicorn"
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
