@@ -1,7 +1,6 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 # Cargar variables de entorno
@@ -19,8 +18,12 @@ DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
 DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
 DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "30"))
 
-# Crear el engine de SQLAlchemy con configuración optimizada
-engine = create_engine(
+# Convertir URL síncrona a asíncrona si es necesario
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+# Crear el engine asíncrono de SQLAlchemy con configuración optimizada
+engine = create_async_engine(
     DATABASE_URL,
     echo=DEBUG,  # Mostrar SQL en consola solo en desarrollo
     pool_pre_ping=True,  # Verificar conexiones antes de usar
@@ -30,27 +33,32 @@ engine = create_engine(
     pool_timeout=DB_POOL_TIMEOUT,
 )
 
-# Crear la sesión de base de datos
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Crear la sesión asíncrona de base de datos
+AsyncSessionLocal = async_sessionmaker(
+    engine, 
+    class_=AsyncSession, 
+    expire_on_commit=False
+)
 
 # Crear la base para los modelos
 Base = declarative_base()
 
-# Función para obtener la sesión de base de datos
-def get_db():
+# Función para obtener la sesión de base de datos asíncrona
+async def get_db():
     """
-    Función para obtener una sesión de base de datos.
+    Función para obtener una sesión de base de datos asíncrona.
     Se usa como dependencia en FastAPI.
     """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
 
 # Función para crear todas las tablas
-def create_tables():
+async def create_tables():
     """
     Crear todas las tablas definidas en los modelos.
     """
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
