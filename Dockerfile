@@ -20,11 +20,11 @@ RUN pip install poetry
 # Configurar Poetry para no crear entorno virtual
 RUN poetry config virtualenvs.create false
 
-# Instalar dependencias ANTES de copiar el código
-RUN poetry install --only=main --no-dev
-
-# Copiar código fuente DESPUÉS de instalar dependencias
+# Copiar código fuente ANTES de instalar dependencias
 COPY src/ ./src/
+
+# Instalar dependencias DESPUÉS de copiar el código
+RUN poetry install --only=main
 
 # Establecer PYTHONPATH para incluir src
 ENV PYTHONPATH=/app/src:$PYTHONPATH
